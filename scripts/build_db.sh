@@ -6,6 +6,10 @@
 # Create a new DB by running our SQL scripts
 # SCRIPTS GO HERE TO BUILD DB
 sqlite3 3241.db < ../sql/schema.sql
-sqlite3 3241.db < 
+
+sqlite3 3241.db <<EOF
+.mode csv
+.import ../data/data.csv data
+EOF
 
 echo "Tht data is BUILT."
