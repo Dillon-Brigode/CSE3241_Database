@@ -7,6 +7,7 @@
 # SCRIPTS GO HERE TO BUILD DB
 sqlite3 3241.db < ../sql/schema.sql
 
+#creates a new table in data base with just the data
 sqlite3 3241.db <<EOF
 .mode csv
 .import ../data/data.csv data
