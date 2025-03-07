@@ -5,7 +5,9 @@ import csv
 conn = sqlite3.connect('3241.db')
 cursor = conn.cursor()
 
-with open('./data/data.csv', 'r', encoding='latin-1', errors='replace') as f:
+
+#read the csv file and insert the data into the database.
+with open("./data/data.csv", 'r', encoding='latin-1', errors='replace') as f:
     reader = csv.reader(f)
     # Skip the first couple of lines that are not valid data
     # ( e.g. "Books,,,,,,,,," and the column header row )
