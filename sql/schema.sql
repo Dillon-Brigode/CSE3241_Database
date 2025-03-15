@@ -7,22 +7,17 @@ CREATE TABLE if Not EXISTS "Book" (
 
 CREATE TABLE if Not EXISTS "Created_Product" (
 	"Item_ID"	INTEGER NOT NULL,
-	"FirstName"	VARCHAR(10) NOT NULL,
-	"MiddleName"	VARCHAR(10) NOT NULL,
-	"LastName"	VARCHAR(10) NOT NULL,
-	PRIMARY KEY("Item_ID","FirstName","MiddleName","LastName"),
-	FOREIGN KEY("FirstName") REFERENCES "Creator"("FirstName"),
+	"Creator_ID" INTEGER NOT NULL
+	PRIMARY KEY("Item_ID","Creator_ID"),
+	FOREIGN KEY("Creator_ID") REFERENCES "Creator"("Creator_ID"),
 	FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID"),
-	FOREIGN KEY("LastName") REFERENCES "Creator"("LastName"),
-	FOREIGN KEY("MiddleName") REFERENCES "Creator"("MiddleName")
 );
 
 CREATE TABLE if Not EXISTS "Creator" (
-	"FirstName"	VARCHAR(10) NOT NULL,
-	"MiddleName"	VARCHAR(10) NOT NULL,
-	"LastName"	VARCHAR(10) NOT NULL,
-	"DOB"	DATE NOT NULL,
-	PRIMARY KEY("FirstName","MiddleName","LastName")
+	"Creator_ID" INTEGER NOT NULL,
+	"Name" VARCHAR(30), NOT NULL,
+	"DOB"	DATE,
+	PRIMARY KEY("Creator_ID")
 );
 
 CREATE TABLE if Not EXISTS "Customer" (
@@ -37,16 +32,16 @@ CREATE TABLE if Not EXISTS "Order" (
 	"Delivery_Status"	VARCHAR(10) NOT NULL,
 	"Payment_Info"	VARCHAR(20) NOT NULL,
 	"Date_of_Purchase"	DATE NOT NULL,
-	"CustomerID"	INTEGER NOT NULL,
+	"Customer_ID"	INTEGER NOT NULL,
 	PRIMARY KEY("Order_ID"),
-	FOREIGN KEY("CustomerID") REFERENCES "Customer"("Customer_ID")
+	FOREIGN KEY("Customer_ID") REFERENCES "Customer"("Customer_ID")
 );
 
-CREATE TABLE if Not EXISTS "Orderded_Product" (
+CREATE TABLE if Not EXISTS "Ordered_Product" (
 	"Order_ID"	INTEGER NOT NULL,
-	"CustomerID"	INTEGER NOT NULL,
-	PRIMARY KEY("Order_ID","CustomerID"),
-	FOREIGN KEY("CustomerID") REFERENCES "Customer"("Customer_ID"),
+	"Item_ID"	INTEGER NOT NULL,
+	PRIMARY KEY("Order_ID","Item_ID"),
+	FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID"),
 	FOREIGN KEY("Order_ID") REFERENCES "Order"("Order_ID")
 );
 
@@ -67,34 +62,36 @@ CREATE TABLE if Not EXISTS "Product_Genre" (
 
 CREATE TABLE if Not EXISTS "Published_Product" (
 	"Item_ID"	INTEGER NOT NULL,
-	"Published_ID"	INTEGER NOT NULL,
-	PRIMARY KEY("Item_ID","Published_ID"),
+	"Publisher_ID"	INTEGER NOT NULL,
+	PRIMARY KEY("Item_ID","Publisher_ID"),
 	FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID"),
-	FOREIGN KEY("Published_ID") REFERENCES "Publisher"("PublisherID")
+	FOREIGN KEY("Publisher_ID") REFERENCES "Publisher"("Publisher_ID")
 );
 
 CREATE TABLE if Not EXISTS "Publisher" (
-	"PublisherID"	INTEGER NOT NULL,
+	"Publisher_ID"	INTEGER NOT NULL,
+	"Name" VARCHAR(30) NOT NULL,
 	"Address"	VARCHAR(30),
-	PRIMARY KEY("PublisherID")
+	PRIMARY KEY("Publisher_ID")
 );
 
 CREATE TABLE if Not EXISTS "Record" (
-	"Record_ID"	INTEGER NOT NULL,
-	"TrackList"	VARCHAR(100) NOT NULL,
-	"Catalog#"	INTEGER NOT NULL,
-	PRIMARY KEY("Record_ID"),
-	FOREIGN KEY("Record_ID") REFERENCES "Product"("Item_ID")
+	"Item_ID"	INTEGER NOT NULL,
+	"Track_List"	VARCHAR(100) NOT NULL,
+	"Catalog#"	INTEGER,
+	PRIMARY KEY("Item_ID"),
+	FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID")
 );
 
 
 CREATE TABLE if Not EXISTS "Review" (
-	"ReviewID"	INTEGER NOT NULL,
+	"Review_ID"	INTEGER NOT NULL,
 	"Text"	VARCHAR(100),
+	"Date" DATE,
 	"Score"	INTEGER NOT NULL CHECK(Score >= 0 and Score <= 10),
 	"Customer_ID"	INTEGER NOT NULL,
 	"Item_ID"	INTEGER NOT NULL,
-	PRIMARY KEY("ReviewID"),
+	PRIMARY KEY("Review_ID"),
 	FOREIGN KEY("Customer_ID") REFERENCES "Customer"("Customer_ID"),
 	FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID")
 );

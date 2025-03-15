@@ -1,0 +1,21 @@
+Order_ID,Delivery_Status,Payment_Info,Date_Of_Purchase,Customer_ID
+1,Arrived,Card,3/11/2025,1
+2,In Route,Card,4/13/2004,10
+3,Processing,Card,11/20/2013,2
+4,Arrived,Cash,12/31/1998,10
+5,In Route,Cash,1/1/2000,15
+6,In Route,Cash,4/6/2012,19
+7,Processing,Cash,2/22/2020,20
+8,Processing,Cash,5/3/2001,4
+9,Processing,Cash,8/19/2021,10
+10,Arrived,Card,12/9/2003,15
+11,In Route,Card,3/3/2006,3
+12,Arrived,Card,7/15/1992,5
+13,In Route,Cash,10/25/2015,6
+14,In Route,Cash,6/6/2024,20
+15,Processing,Card,9/24/2008,10
+16,Processing,Card,11/23/2021,15
+17,Arrived,Card,7/23/2010,16
+18,Arrived,Cash,5/14/2006,15
+19,Arrived,Cash,8/12/2009,9
+20,Arrived,Card,6/3/2001,8
