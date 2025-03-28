@@ -368,7 +368,7 @@ def create_tables(cur: sqlite3.Cursor):
         PRIMARY KEY("Item_ID", "Song_ID")
         FOREIGN KEY("Song_ID") REFERENCES "Song"("Song_ID")
         FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID")
-    )
+    );
     """)
 
 def populate_ordered_product(cur: sqlite3.Cursor):
