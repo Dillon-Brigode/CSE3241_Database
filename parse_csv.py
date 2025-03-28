@@ -113,9 +113,20 @@ def main(csv_path: str, db_path: str = "./3241.db"):
     populate_records(cur, product_id, publisher_ids, curr_publisher_id, author_ids, curr_author_id)
     populate_ordered_product(cur)
     populate_reviews(cur)
+    populate_songs(cur)
+    populate_songs_records(cur)
     # 4. Commit changes and close connection.
     conn.commit()
     conn.close()
+
+def populate_songs(cur: sqlite3.Cursor):
+    with open(r"data\song_data.csv", mode = "r", encoding = 'latin-1', errors='replace') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            cur.execute("""
+                INSERT OR IGNORE INTO Song
+                VALUES(?, ?)
+            """, (row["SongID"], row["Name"]))
 
 def populate_records(cur: sqlite3.Cursor, product_id : int, publisher_ids: dict, curr_publisher_id: int, author_ids : dict, curr_author_id: int):
     item_id : int = product_id
@@ -133,8 +144,8 @@ def populate_records(cur: sqlite3.Cursor, product_id : int, publisher_ids: dict,
                 
                 cur.execute("""
                     INSERT OR IGNORE INTO RECORD
-                    VALUES(?, ?, ?)
-                """, (item_id, row["Track_List"], row["Catalog#"]))
+                    VALUES(?, ?)
+                """, (item_id, row["Catalog#"]))
 
                 publisher = row["Publisher"]
                 if (publisher not in publisher_ids.keys()):
@@ -174,7 +185,14 @@ def populate_records(cur: sqlite3.Cursor, product_id : int, publisher_ids: dict,
                 VALUES(?, ?)
             """, (item_id, author_ids[creator]))
 
-
+def populate_songs_records(cur: sqlite3.Cursor):
+    with open(r"data\songs_on_albums_data.csv", mode ="r", encoding='latin-1', errors = 'replace') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            cur.execute("""
+                INSERT OR IGNORE INTO "Songs_On_Records"
+                VALUES(?, ?)
+            """, (row["ItemID"], row["SongID"]))
 
 def populate_orders(cur: sqlite3.Cursor):
     with open("data\order_data.csv", mode = "r", encoding='latin-1', errors='replace' ) as f:
@@ -307,7 +325,6 @@ def create_tables(cur: sqlite3.Cursor):
     cur.execute("""
         CREATE TABLE if Not EXISTS "Record" (
 	        "Item_ID"	INTEGER NOT NULL,
-	        "Track_List"	VARCHAR(200) NOT NULL,
 	        "Catalog#"	VARCHAR(15) NOT NULL,
 	        PRIMARY KEY("Item_ID"),
 	        FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID")
@@ -335,6 +352,24 @@ def create_tables(cur: sqlite3.Cursor):
 	        FOREIGN KEY("Publisher_ID") REFERENCES "Publisher"("Publisher_ID")
         );
     """)
+    # Songs Table
+    cur.execute("""
+        CREATE TABLE if Not EXISTS "Song" (
+            "Song_ID"   INTEGER NOT NULL,
+            "Name"      VARCHAR(30) NOT NULL,
+            PRIMARY KEY("Song_ID")
+        );
+    """)
+    # Song_On_Records Relation Table
+    cur.execute("""
+        CREATE TABLE if Not EXISTS "Songs_On_Records" (
+        "Item_ID" INTEGER   NOT NULL,
+        "Song_ID"   INTEGER NOT NULL,
+        PRIMARY KEY("Item_ID", "Song_ID")
+        FOREIGN KEY("Song_ID") REFERENCES "Song"("Song_ID")
+        FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID")
+    )
+    """)
 
 def populate_ordered_product(cur: sqlite3.Cursor):
     with open(r"data\ordered_product_data.csv", mode = "r", encoding='latin-1', errors='replace' ) as f:
@@ -360,8 +395,8 @@ if __name__ == "__main__":
     # Usage example:
     #   python script_name.py data.csv my_db.db
     # If no arguments are given, it defaults to ./data/data.csv and 3241.db.
-    csv_file = "data/data.csv"
-    db_file = "test3241.db"
+    csv_file = "data/proj_data.csv"
+    db_file = "cse3241.db"
 
     if len(sys.argv) >= 2:
         csv_file = sys.argv[1]
