@@ -106,5 +106,5 @@ CREATE TABLE if Not EXISTS "Songs_On_Records" (
 "Song_ID"   INTEGER NOT NULL,
 PRIMARY KEY("Item_ID", "Song_ID")
 FOREIGN KEY("Song_ID") REFERENCES "Song"("Song_ID")
-FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID")
+FOREIGN KEY("Item_ID") REFERENCES "Record"("Item_ID")
 );

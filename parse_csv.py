@@ -56,7 +56,7 @@ def main(csv_path: str, db_path: str = "./3241.db"):
                     VALUES (?, ?)
                 """, (product_id, isbn))
 
-                publisher = row["Publisher"]
+                publisher = row["Publisher"].strip()
                 publisher_id : int = 0
                 #If this publisher has not been seen yet
                 if(publisher not in publisher_ids.keys()):
@@ -87,7 +87,7 @@ def main(csv_path: str, db_path: str = "./3241.db"):
                     """, (product_id, genre))
 
 
-            author = row["Author(s)"]
+            author = row["Author(s)"].strip()
             author_id : int = 0
             # If this author has not been encountered yet
             if (author not in author_ids.keys()):
