@@ -88,17 +88,30 @@ def main(csv_path: str, db_path: str = "./3241.db"):
 
 
             author = row["Author(s)"].strip()
+            names = author.split(" ")
             author_id : int = 0
             # If this author has not been encountered yet
             if (author not in author_ids.keys()):
                 author_ids[author] = curr_author_id
                 author_id = curr_author_id
                 curr_author_id += 1
+                
                 # Add the new author to the authors table
-                cur.execute("""
-                    INSERT OR IGNORE INTO CREATOR(Creator_ID, Name)
-                       VALUES(?, ?)
-                """, (author_id, author))
+                if len(names) >= 3:
+                    first_index = author.index(" ")
+                    first_name = author[0: first_index]
+                    last_index = author.rindex(" ") + 1
+                    last_name = author[last_index:]
+                    middle_name = author[first_index: last_index].strip()
+                    cur.execute("""
+                        INSERT OR IGNORE INTO CREATOR(Creator_ID, First_Name, Middle_Name, Last_Name)
+                           VALUES(?, ?, ?, ?)
+                    """, (author_id, first_name, middle_name, last_name))
+                else:
+                    cur.execute("""
+                            INSERT OR IGNORE INTO CREATOR(Creator_ID, First_Name, Last_Name)
+                               VALUES(?, ?, ?)
+                        """, (author_id, names[0], names[1]))
             else:
                 author_id = author_ids[author]
 
@@ -115,6 +128,13 @@ def main(csv_path: str, db_path: str = "./3241.db"):
     populate_reviews(cur)
     populate_songs(cur)
     populate_songs_records(cur)
+
+    cur.execute("""
+    UPDATE Creator SET Middle_Name=null WHERE Middle_Name = "";
+    """)
+    cur.execute("""
+    UPDATE Creator SET Last_Name=null WHERE Last_Name = "";
+    """)
     # 4. Commit changes and close connection.
     conn.commit()
     conn.close()
@@ -170,15 +190,18 @@ def populate_records(cur: sqlite3.Cursor, product_id : int, publisher_ids: dict,
                         VALUES(?, ?)
                     """, (item_id, genre))
 
-            creator = row["Artist(s)"]
+            first_name = row["First_Name"]
+            middle_name = row["Middle_Name"]
+            last_name = row["Last_Name"]
+            creator = first_name + middle_name + last_name
             if (creator not in author_ids.keys()):
                 author_ids[creator] = curr_author_id
                 curr_author_id += 1
 
             cur.execute("""
-                INSERT OR IGNORE INTO CREATOR(Creator_ID, Name)
-                VALUES(?, ?)
-            """, (author_ids[creator], creator))
+                INSERT OR IGNORE INTO CREATOR(Creator_ID, First_Name, Middle_Name, Last_Name)
+                VALUES(?, ?, ?, ?)
+            """, (author_ids[creator], first_name, middle_name, last_name))
 
             cur.execute("""
                 INSERT OR IGNORE INTO CREATED_PRODUCT
@@ -270,7 +293,9 @@ def create_tables(cur: sqlite3.Cursor):
     cur.execute("""
         CREATE TABLE if Not EXISTS "Creator" (
 	        "Creator_ID" INTEGER NOT NULL,
-	        "Name" VARCHAR(30) NOT NULL,
+	        "First_Name" VARCHAR(30) NOT NULL,
+            "Middle_Name" VARCHAR(15),
+            "Last_Name" VARCHAR(15),
 	        "DOB"	DATE,
 	        PRIMARY KEY("Creator_ID")
         );
@@ -280,7 +305,7 @@ def create_tables(cur: sqlite3.Cursor):
     cur.execute("""
         CREATE TABLE if Not EXISTS "Publisher" (
 	        "Publisher_ID"	INTEGER NOT NULL,
-	        "Name" VARCHAR(30) NOT NULL,
+	        "Name"      VARCHAR(30) NOT NULL,
 	        "Address"	VARCHAR(30),
 	        PRIMARY KEY("Publisher_ID")
         );
@@ -396,7 +421,7 @@ if __name__ == "__main__":
     #   python script_name.py data.csv my_db.db
     # If no arguments are given, it defaults to ./data/data.csv and 3241.db.
     csv_file = "data/proj_data.csv"
-    db_file = "cse3241.db"
+    db_file = "final_version3241.db"
 
     if len(sys.argv) >= 2:
         csv_file = sys.argv[1]
