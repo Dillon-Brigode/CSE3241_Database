@@ -283,6 +283,7 @@ def create_tables(cur: sqlite3.Cursor):
         CREATE TABLE if Not EXISTS "Ordered_Product" (
 	        "Order_ID"	INTEGER NOT NULL,
 	        "Item_ID"	INTEGER NOT NULL,
+            "Quantity" INTEGER NOT NULL,
 	        PRIMARY KEY("Order_ID","Item_ID"),
 	        FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID"),
 	        FOREIGN KEY("Order_ID") REFERENCES "Order"("Order_ID")
@@ -402,8 +403,8 @@ def populate_ordered_product(cur: sqlite3.Cursor):
         for row in reader:
             cur.execute("""
                 INSERT OR IGNORE INTO Ordered_Product
-                VALUES(?, ?)
-            """, (row["Order_ID"], row["Product_ID"]))
+                VALUES(?, ?, ?)
+            """, (row["Order_ID"], row["Product_ID"], row["Quantity"]))
     
 def populate_reviews(cur: sqlite3.Cursor):
     with open(r"data\review_data.csv", mode="r", encoding='latin-1', errors='replace') as f:
