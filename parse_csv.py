@@ -129,11 +129,42 @@ def main(csv_path: str, db_path: str = "./3241.db"):
     populate_songs(cur)
     populate_songs_records(cur)
 
+    # Set Names that are empty to null
     cur.execute("""
     UPDATE Creator SET Middle_Name=null WHERE Middle_Name = "";
     """)
     cur.execute("""
     UPDATE Creator SET Last_Name=null WHERE Last_Name = "";
+    """)
+    # Create the indicies implemented on this database
+    cur.execute("""
+        CREATE INDEX Creator_Name ON Creator(First_Name, Middle_Name, Last_Name);
+    """)
+    cur.execute("""
+        CREATE INDEX Product_Title ON Product(Title);
+    """)
+
+    # Create the views used within the database
+    cur.execute("""CREATE VIEW Highly_Rated_Products AS
+        SELECT P.Title, R.Score
+        FROM Product AS P, Review AS R
+        WHERE P.Item_ID = R.Item_ID
+        AND R.Score >= (
+            SELECT AVG(R.Score) as avg_score
+            FROM Review AS R);
+    """)
+
+    cur.execute("""
+    CREATE VIEW Number_Of_Products AS
+    SELECT Product.Title, CONCAT(Creator.First_Name, ' ', Creator.Middle_Name, ' ', Creator.Last_Name) as Creator_Name, products_created
+    FROM Creator,Product, Created_Product, (
+        SELECT Creator.Creator_ID, Count(*) as products_created
+        FROM Created_Product, Creator
+        WHERE Creator.Creator_ID = Created_Product.Creator_ID
+        GROUP BY Creator.Creator_ID) AS Counts
+    WHERE Creator.Creator_ID = Counts.Creator_ID
+    AND Creator.Creator_ID = Created_Product.Creator_ID
+    AND Product.Item_ID = Created_Product.Item_ID;
     """)
     # 4. Commit changes and close connection.
     conn.commit()
@@ -416,7 +447,7 @@ def populate_reviews(cur: sqlite3.Cursor):
                 VALUES(?, ?, ?, ?, ?, ?)
             """, (review_id, row["Text"], row["Date"], row["Score"], row["Customer_ID"], row["Item_ID"]))
             review_id += 1
-            
+
 if __name__ == "__main__":
     # Usage example:
     #   python script_name.py data.csv my_db.db
