@@ -77,7 +77,6 @@ CREATE TABLE if Not EXISTS "Publisher" (
 
 CREATE TABLE if Not EXISTS "Record" (
 	"Item_ID"	INTEGER NOT NULL,
-	"Track_List"	VARCHAR(100) NOT NULL,
 	"Catalog#"	INTEGER,
 	PRIMARY KEY("Item_ID"),
 	FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID")
@@ -94,4 +93,18 @@ CREATE TABLE if Not EXISTS "Review" (
 	PRIMARY KEY("Review_ID"),
 	FOREIGN KEY("Customer_ID") REFERENCES "Customer"("Customer_ID"),
 	FOREIGN KEY("Item_ID") REFERENCES "Product"("Item_ID")
+);
+
+CREATE TABLE if Not EXISTS "Song" (
+    "Song_ID"   INTEGER NOT NULL,
+    "Name"      VARCHAR(30) NOT NULL,
+    PRIMARY KEY("Song_ID")
+);
+
+CREATE TABLE if Not EXISTS "Songs_On_Records" (
+"Item_ID" INTEGER   NOT NULL,
+"Song_ID"   INTEGER NOT NULL,
+PRIMARY KEY("Item_ID", "Song_ID")
+FOREIGN KEY("Song_ID") REFERENCES "Song"("Song_ID")
+FOREIGN KEY("Item_ID") REFERENCES "Record"("Item_ID")
 );
