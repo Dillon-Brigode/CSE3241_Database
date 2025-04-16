@@ -38,9 +38,6 @@ Below is an outline of the repository’s file structure:
 ### *SQL Insert/Delete:*
    -    
 
-### *Reviewing the Final Report:*
-   - Open `FinalReport.pdf` in the FinalReport folder to access detailed documentation including the ER diagram, normalization analysis, index design, view definitions, and transaction descriptions.
-
 ## **Project Details**
 A final report was professionally presented with two main parts:
 
