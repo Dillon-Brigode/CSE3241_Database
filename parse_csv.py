@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlite3
 import csv
 import sys
@@ -7,7 +5,6 @@ def main(csv_path: str, db_path: str = "./3241.db"):
     """
     Reads data from `csv_path` and inserts into an SQLite database at `db_path`.
     """
-
     isbns :set = set()
     author_ids : dict = {}
     publisher_ids : dict = {}
@@ -16,7 +13,8 @@ def main(csv_path: str, db_path: str = "./3241.db"):
     # 1. Connect to (or create) the SQLite database.
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
-
+    #Resest database
+    drop_tables(cur)
     create_tables(cur)
     
 
@@ -86,8 +84,9 @@ def main(csv_path: str, db_path: str = "./3241.db"):
                         VALUES(?, ?)
                     """, (product_id, genre))
 
-
+            # Get entire author name
             author = row["Author(s)"].strip()
+            # Split the entire name based on " "
             names = author.split(" ")
             author_id : int = 0
             # If this author has not been encountered yet
@@ -98,8 +97,10 @@ def main(csv_path: str, db_path: str = "./3241.db"):
                 
                 # Add the new author to the authors table
                 if len(names) >= 3:
+                    #Get the first name
                     first_index = author.index(" ")
                     first_name = author[0: first_index]
+                    # Get the last name
                     last_index = author.rindex(" ") + 1
                     last_name = author[last_index:]
                     middle_name = author[first_index: last_index].strip()
@@ -121,6 +122,7 @@ def main(csv_path: str, db_path: str = "./3241.db"):
                 VALUES(?, ?)
             """, (product_id, author_id))
 
+    #Populate the rest of the tables by reading their respective data files
     populate_customers(cur)
     populate_orders(cur)
     populate_records(cur, product_id, publisher_ids, curr_publisher_id, author_ids, curr_author_id)
@@ -169,6 +171,56 @@ def main(csv_path: str, db_path: str = "./3241.db"):
     # 4. Commit changes and close connection.
     conn.commit()
     conn.close()
+
+def drop_tables(cur: sqlite3.Cursor):
+    cur.execute("""
+        DROP VIEW IF EXISTS Highly_Rated_Products;
+    """)
+    cur.execute("""
+        DROP VIEW IF EXISTS Number_Of_Products;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Songs_On_Records;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Song;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Published_Product;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Created_Product;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Record;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Book;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Product_Genre;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Review;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Publisher;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Creator;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Ordered_Product;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS "Order";
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Product;
+    """)
+    cur.execute("""
+        DROP TABLE IF EXISTS Customer;
+    """)
 
 def populate_songs(cur: sqlite3.Cursor):
     with open(r"data\song_data.csv", mode = "r", encoding = 'latin-1', errors='replace') as f:
@@ -456,8 +508,6 @@ if __name__ == "__main__":
     db_file = "final_version3241.db"
 
     if len(sys.argv) >= 2:
-        csv_file = sys.argv[1]
-    if len(sys.argv) >= 3:
-        db_file = sys.argv[2]
+        db_file = sys.argv[1]
 
     main(csv_file, db_file)
